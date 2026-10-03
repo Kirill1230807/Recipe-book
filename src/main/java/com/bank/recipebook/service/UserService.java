@@ -1,5 +1,6 @@
 package com.bank.recipebook.service;
 
+import com.bank.recipebook.config.PasswordConfig;
 import com.bank.recipebook.dto.user.CreateUserRequest;
 import com.bank.recipebook.dto.user.UpdateUserRequest;
 import com.bank.recipebook.dto.user.UserResponse;
@@ -8,6 +9,7 @@ import com.bank.recipebook.exception.ResourceNotFoundException;
 import com.bank.recipebook.model.User;
 import com.bank.recipebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserResponse> findAll() {
         return userRepository.findAll()
@@ -44,7 +47,9 @@ public class UserService {
 
         User user = User.builder()
                 .email(request.email())
-                .passwordHash(request.password())
+                .passwordHash(
+                        passwordEncoder.encode(request.password())
+                )
                 .username(request.username())
                 .createdAt(LocalDateTime.now())
                 .build();
