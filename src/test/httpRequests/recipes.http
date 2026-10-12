@@ -1,0 +1,66 @@
+@baseUrl = http://localhost:8080
+@recipeId = 1
+@basicAuth = a2lyaWxsQGV4YW1wbGUuY29tOjEyMzQ1Ng==
+
+### 0. Отримати CSRF-токен
+GET http://localhost:8080/api/csrf
+Authorization: Basic {{basicAuth}}
+Accept: application/json
+
+> {%
+    if (response.status === 200) {
+        const token = response.body.token
+        client.global.set("csrfToken", token);
+    } else {
+        console.log("Не вдалося отримати CSRF-токен:", response.status);
+    }
+%}
+
+### 1. Показати всі рецепти
+GET {{baseUrl}}/api/recipes
+Authorization: Basic {{basicAuth}}
+Accept: application/json
+
+### 2. Отримати один рецепт
+GET {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+Accept: application/json
+
+### 3. Створити рецепт
+POST {{baseUrl}}/api/recipes
+Authorization: Basic {{basicAuth}}
+X-CSRF-TOKEN: {{csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Борщ український",
+  "description": "Традиційний український борщ",
+  "instructions": "Підготувати овочі, зварити бульйон і додати овочі.",
+  "prepTime": 60,
+  "authorId": 1,
+  "categoryId": 1,
+  "ingredients": []
+}
+
+### 4. Оновити рецепт
+PUT {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+X-CSRF-TOKEN: {{csrfToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Борщ український — оновлений",
+  "description": "Оновлений опис рецепта",
+  "instructions": "Підготувати овочі, зварити бульйон і дати настоятися.",
+  "prepTime": 70,
+  "categoryId": 1,
+  "ingredients": []
+}
+
+### 5. Видалити рецепт
+DELETE {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+X-CSRF-TOKEN: {{csrfToken}}
+Accept: application/json
