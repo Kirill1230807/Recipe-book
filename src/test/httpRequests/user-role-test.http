@@ -1,0 +1,55 @@
+@baseUrl = http://localhost:8080
+@userEmail = user@example.com
+@userPassword = YourUserPassword123
+@recipeId = 3
+@basicAuth = dGVzdHVzZXJAZXhhbXBsZS5jb206MTIzNDU2
+
+### 1. GET — отримати всі рецепти (очікується 200 OK)
+GET {{baseUrl}}/api/recipes
+Authorization: Basic {{basicAuth}}
+Accept: application/json
+
+
+### 2. GET — отримати один рецепт (очікується 200 OK)
+GET {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+Accept: application/json
+
+
+### 3. POST — створити рецепт (очікується 403 Forbidden)
+POST {{baseUrl}}/api/recipes
+Authorization: Basic {{basicAuth}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Тестовий рецепт користувача",
+  "description": "Перевірка обмежень ролі USER",
+  "instructions": "Тестова інструкція",
+  "prepTime": 30,
+  "authorId": 1,
+  "categoryId": 1,
+  "ingredients": []
+}
+
+
+### 4. PUT — оновити рецепт (очікується 403 Forbidden)
+PUT {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Спроба оновлення від USER",
+  "description": "Цей опис не повинен зберегтися",
+  "instructions": "Тестова інструкція",
+  "prepTime": 40,
+  "categoryId": 1,
+  "ingredients": []
+}
+
+
+### 5. DELETE — видалити рецепт (очікується 403 Forbidden)
+DELETE {{baseUrl}}/api/recipes/{{recipeId}}
+Authorization: Basic {{basicAuth}}
+Accept: application/json
