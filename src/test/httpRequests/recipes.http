@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8080
-@recipeId = 1
+@recipeId = 3
 @basicAuth = a2lyaWxsQGV4YW1wbGUuY29tOjEyMzQ1Ng==
 
 ### 0. Отримати CSRF-токен
@@ -38,7 +38,7 @@ Accept: application/json
   "description": "Традиційний український борщ",
   "instructions": "Підготувати овочі, зварити бульйон і додати овочі.",
   "prepTime": 60,
-  "authorId": 1,
+  "authorId": 7,
   "categoryId": 1,
   "ingredients": []
 }

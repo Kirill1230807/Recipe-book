@@ -6,6 +6,7 @@ import com.bank.recipebook.dto.user.UpdateUserRequest;
 import com.bank.recipebook.dto.user.UserResponse;
 import com.bank.recipebook.exception.ResourceAlreadyExistsException;
 import com.bank.recipebook.exception.ResourceNotFoundException;
+import com.bank.recipebook.model.Role;
 import com.bank.recipebook.model.User;
 import com.bank.recipebook.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class UserService {
                         passwordEncoder.encode(request.password())
                 )
                 .username(request.username())
+                .role(Role.USER)
                 .createdAt(LocalDateTime.now())
                 .build();
 

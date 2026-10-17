@@ -39,7 +39,22 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/csrf"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/**"
+                        ).hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(
+                                HttpMethod.POST, "/api/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT, "/api/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PATCH, "/api/**"
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.DELETE, "/api/**"
+                        ).hasRole("ADMIN")
+                        .anyRequest().denyAll()
                 )
 
                 .httpBasic(httpBasic -> {
