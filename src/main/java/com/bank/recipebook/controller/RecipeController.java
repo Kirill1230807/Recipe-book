@@ -54,6 +54,7 @@ public class RecipeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public RecipeResponse create(
             @Valid @RequestBody CreateRecipeRequest request
     ) {
