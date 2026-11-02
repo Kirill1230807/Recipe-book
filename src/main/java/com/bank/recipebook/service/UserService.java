@@ -1,6 +1,5 @@
 package com.bank.recipebook.service;
 
-import com.bank.recipebook.config.PasswordConfig;
 import com.bank.recipebook.dto.user.CreateUserRequest;
 import com.bank.recipebook.dto.user.UpdateUserRequest;
 import com.bank.recipebook.dto.user.UserResponse;
