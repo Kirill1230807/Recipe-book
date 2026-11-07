@@ -7,6 +7,7 @@ import com.bank.recipebook.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,11 +55,11 @@ public class RecipeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ADMIN')")
-    public RecipeResponse create(
+    public ResponseEntity<RecipeResponse> create(
             @Valid @RequestBody CreateRecipeRequest request
     ) {
-        return recipeService.create(request);
+        RecipeResponse recipeResponse = recipeService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(recipeResponse);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

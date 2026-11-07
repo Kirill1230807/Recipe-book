@@ -3,15 +3,15 @@ package com.bank.recipebook.security.jwt;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
+import io.jsonwebtoken.Claims;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Service
 public class JwtService {
@@ -27,6 +27,29 @@ public class JwtService {
                 Decoders.BASE64.decode(secret)
         );
         this.expiration = expiration;
+    }
+
+
+    // Отримання email (subject) із JWT
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    // Перевірка токена
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        Claims claims = extractAllClaims(token);
+
+        return claims.getSubject().equals(userDetails.getUsername())
+                && claims.getExpiration().after(new Date());
+    }
+
+    // Читання та перевірка підпису токена
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String generateToken(Authentication authentication) {

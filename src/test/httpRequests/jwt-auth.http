@@ -1,0 +1,153 @@
+
+### 1. AUTHENTICATION
+
+### Login as ADMIN
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+> {%
+    client.test("ADMIN login returns 200", function () {
+        client.assert(response.status === 200);
+        client.assert(response.body.accessToken !== undefined);
+    });
+
+    if (response.status === 200 && response.body) {
+        client.global.set("adminToken", response.body.accessToken);
+        client.log("ADMIN token saved");
+    }
+%}
+
+### Login as USER
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "user123"
+}
+
+> {%
+    client.test("USER login returns 200", function () {
+        client.assert(response.status === 200);
+        client.assert(response.body.accessToken !== undefined);
+    });
+
+    if (response.status === 200 && response.body) {
+        client.global.set("userToken", response.body.accessToken);
+        client.log("USER token saved");
+    }
+%}
+
+
+### 2. UNAUTHENTICATED REQUESTS
+
+### GET recipes without JWT
+GET http://localhost:8080/api/recipes
+
+> {%
+    client.test("Request without JWT returns 401", function () {
+        client.assert(response.status === 401);
+    });
+%}
+
+### POST recipes without JWT
+POST http://localhost:8080/api/recipes
+Content-Type: application/json
+
+{}
+
+> {%
+    client.test("POST without JWT returns 401", function () {
+        client.assert(response.status === 401);
+    });
+%}
+
+
+### 3. ADMIN JWT TESTS
+
+### GET recipes with ADMIN JWT
+GET http://localhost:8080/api/recipes
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("ADMIN can access recipes", function () {
+        client.assert(response.status === 200);
+    });
+%}
+
+
+### 4. USER JWT TESTS
+
+### GET recipes with USER JWT
+GET http://localhost:8080/api/recipes
+Authorization: Bearer {{userToken}}
+
+> {%
+    client.test("USER can access recipes", function () {
+        client.assert(response.status === 200);
+    });
+%}
+
+### USER cannot create recipes
+POST http://localhost:8080/api/recipes
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{}
+
+> {%
+    client.test("USER cannot create recipes", function () {
+        client.assert(response.status === 401);
+    });
+%}
+
+
+### 5. INVALID JWT TEST
+
+### GET recipes with invalid JWT
+GET http://localhost:8080/api/recipes
+Authorization: Bearer invalid.jwt.token
+
+> {%
+    client.test("Invalid JWT returns 401", function () {
+        client.assert(response.status === 401);
+    });
+%}
+
+
+### 6. ADMIN WRITE ACCESS
+
+### ADMIN can create recipes
+POST http://localhost:8080/api/recipes
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Паста з помідорами",
+  "description": "Проста паста з томатами",
+  "instructions": "Зварити пасту. Обсмажити помідори. Змішати з пастою.",
+  "prepTime": 20,
+  "authorId": 1,
+  "categoryId": 2,
+  "ingredients": [
+    {
+      "ingredientId": 2,
+      "amount": "200 г"
+    },
+    {
+      "ingredientId": 1,
+      "amount": "150 г"
+    }
+  ]
+}
+
+> {%
+    client.test("ADMIN can create recipes", function () {
+        client.assert(response.status === 200);
+    });
+%}
