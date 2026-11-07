@@ -1,19 +1,26 @@
 package com.bank.recipebook.security;
 
+import com.bank.recipebook.security.jwt.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(
@@ -21,16 +28,15 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                .csrf(csrf -> csrf
-                        .csrfTokenRequestHandler(
-                                new CsrfTokenRequestAttributeHandler()
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(
+                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
                         )
-                        .ignoringRequestMatchers("/api/users", "/api/auth/login")
                 )
-
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
-                                SessionCreationPolicy.IF_REQUIRED
+                                SessionCreationPolicy.STATELESS
                         )
                 )
 
@@ -39,34 +45,47 @@ public class SecurityConfig {
                                 HttpMethod.POST,
                                 "/api/users"
                         ).permitAll()
+
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/auth/login"
                         ).permitAll()
+
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/api/csrf"
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.GET, "/api/**"
+                                "/api/**"
                         ).hasAnyRole("ADMIN", "USER")
+
                         .requestMatchers(
-                                HttpMethod.POST, "/api/**"
+                                HttpMethod.POST,
+                                "/api/**"
                         ).hasRole("ADMIN")
+
                         .requestMatchers(
-                                HttpMethod.PUT, "/api/**"
+                                HttpMethod.PUT,
+                                "/api/**"
                         ).hasRole("ADMIN")
+
                         .requestMatchers(
-                                HttpMethod.PATCH, "/api/**"
+                                HttpMethod.PATCH,
+                                "/api/**"
                         ).hasRole("ADMIN")
+
                         .requestMatchers(
-                                HttpMethod.DELETE, "/api/**"
+                                HttpMethod.DELETE,
+                                "/api/**"
                         ).hasRole("ADMIN")
+
                         .anyRequest().denyAll()
                 )
 
-                .httpBasic(httpBasic -> {
-                });
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
