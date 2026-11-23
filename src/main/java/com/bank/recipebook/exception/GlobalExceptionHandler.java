@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -13,9 +14,8 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ErrorResponse handleNotFound(
-            ResourceNotFoundException exception
-    ) {
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(ResourceNotFoundException exception) {
         return new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
@@ -24,9 +24,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ErrorResponse handleAlreadyExists(
-            ResourceAlreadyExistsException exception
-    ) {
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleAlreadyExists(ResourceAlreadyExistsException exception) {
         return new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
@@ -35,16 +34,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorResponse handleValidation(
-            MethodArgumentNotValidException exception
-    ) {
-
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidation(MethodArgumentNotValidException exception) {
         String message = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(error ->
-                        error.getField() + ": " + error.getDefaultMessage()
-                )
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
 
         return new ErrorResponse(
@@ -55,9 +50,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ErrorResponse handleConstraintViolation(
-            ConstraintViolationException exception
-    ) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConstraintViolation(ConstraintViolationException exception) {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
@@ -66,9 +60,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ErrorResponse handleIllegalArgument(
-            IllegalArgumentException exception
-    ) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArgument(IllegalArgumentException exception) {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),

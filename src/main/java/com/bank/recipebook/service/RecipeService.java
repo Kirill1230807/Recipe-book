@@ -28,6 +28,7 @@ public class RecipeService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final IngredientRepository ingredientRepository;
+    private final AuditService auditService;
 
     public List<RecipeResponse> findAll() {
         return recipeRepository.findAll()
@@ -98,7 +99,7 @@ public class RecipeService {
         addIngredients(recipe, request.ingredients());
 
         Recipe savedRecipe = recipeRepository.save(recipe);
-
+        auditService.log("CREATE", "Recipe", savedRecipe.getId(), "Created recipe: " + savedRecipe.getTitle());
         return toResponse(savedRecipe);
     }
 
@@ -133,6 +134,7 @@ public class RecipeService {
 
         addIngredients(recipe, request.ingredients());
 
+        auditService.log("UPDATE", "Recipe", recipe.getId(), "Updated recipe: " + recipe.getTitle());
         return toResponse(recipe);
     }
 
@@ -142,6 +144,7 @@ public class RecipeService {
         Recipe recipe = getRecipeById(id);
 
         recipeRepository.delete(recipe);
+        auditService.log("DELETE", "Recipe", id, "Deleted recipe with id: " + id);
     }
 
     private void addIngredients(
